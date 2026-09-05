@@ -28,6 +28,14 @@ export interface FormSubmission {
   dateModified?: string;
 }
 
+/** Empty in local/dev (Vite proxies /api). Set to backend URL on Vercel. */
+const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || '';
+
+function apiUrl(path: string): string {
+  if (path.startsWith('http')) return path;
+  return `${API_BASE}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 type TokenGetter = () => string | null;
 type TokenSetter = (access: string, refresh: string) => void;
 type LogoutFn = () => void;
@@ -60,7 +68,7 @@ async function refreshAccessToken(): Promise<string | null> {
   const refreshToken = getRefreshToken();
   if (!refreshToken) return null;
 
-  const res = await fetch('/api/auth/refresh', {
+  const res = await fetch(apiUrl('/api/auth/refresh'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ refreshToken }),
@@ -92,7 +100,7 @@ export async function apiRequest<T>(
     headers.set('Authorization', `Bearer ${token}`);
   }
 
-  const res = await fetch(path, { ...options, headers });
+  const res = await fetch(apiUrl(path), { ...options, headers });
 
   if (res.status === 401 && retry) {
     const newToken = await refreshAccessToken();

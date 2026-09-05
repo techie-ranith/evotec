@@ -40,7 +40,8 @@ Copy `backend/.env.example` to `backend/.env` for local development:
 | `JWT_REFRESH_EXPIRES` | Refresh token lifetime (e.g. `7d`) |
 | `SEED_ADMIN_EMAIL` | Admin email created on first boot |
 | `SEED_ADMIN_PASSWORD` | Password for the seeded admin |
-| `CORS_ORIGIN` | Comma-separated allowed origins (local + your Vercel URL) |
+| `CORS_ORIGIN` | Comma-separated allowed origins (local + your frontend Vercel URL) |
+| `VITE_API_URL` | **Frontend only (Vercel):** backend URL, e.g. `https://evotec-backend.vercel.app` (leave empty locally) |
 
 ## MongoDB Atlas Network Access (required)
 
@@ -76,43 +77,28 @@ npm run dev:frontend
 
 ## Deploy to Vercel (production)
 
-### 1. Push the repo to GitHub
+You can deploy **frontend** and **backend** as two Vercel projects (recommended if you already have `evotec-backend`).
 
-### 2. Import on Vercel
+### Backend project
 
-1. [vercel.com/new](https://vercel.com/new) → import this repository
-2. **Root Directory:** leave as repo root (do not set to `frontend` only)
-3. Framework preset: **Other** (uses `vercel.json`)
-4. Build settings are already in `vercel.json`:
-   - Install: `npm install`
-   - Build: `npm run build -w frontend`
-   - Output: `frontend/dist`
+- Root Directory: `backend` (or repo root with `api/` serverless entry — match how you already deploy)
+- Env vars: `MONGODB_URI`, `JWT_*`, `SEED_ADMIN_*`, and:
 
-### 3. Set environment variables
+```text
+CORS_ORIGIN=https://YOUR-FRONTEND.vercel.app,http://localhost:5173
+```
 
-In Vercel → Project → **Settings → Environment Variables**, add for **Production** (and Preview if you want):
+### Frontend project
 
-| Name | Example |
-|------|---------|
-| `MONGODB_URI` | your Atlas SRV URI |
-| `JWT_ACCESS_SECRET` | long random string |
-| `JWT_REFRESH_SECRET` | different long random string |
-| `JWT_ACCESS_EXPIRES` | `15m` |
-| `JWT_REFRESH_EXPIRES` | `7d` |
-| `SEED_ADMIN_EMAIL` | `admin@evotec.local` |
-| `SEED_ADMIN_PASSWORD` | strong password |
-| `CORS_ORIGIN` | `https://your-app.vercel.app` |
+- Root Directory: `frontend`
+- Build: `npm run build` / Output: `dist`
+- Env var (Production):
 
-After the first deploy, set `CORS_ORIGIN` to your real Vercel URL (or `https://your-app.vercel.app,http://localhost:5173` if you still hit the prod API from local).
+```text
+VITE_API_URL=https://evotec-backend.vercel.app
+```
 
-### 4. Deploy
-
-Click **Deploy**. When finished:
-
-- Site: `https://your-app.vercel.app`
-- Health: `https://your-app.vercel.app/api/health`
-
-Same-origin `/api/*` is rewritten to the Express serverless function — no separate backend host.
+Redeploy the frontend after setting `VITE_API_URL` (Vite bakes it in at build time).
 
 ### CLI (optional)
 

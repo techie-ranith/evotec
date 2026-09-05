@@ -24,6 +24,15 @@ app.use(
 );
 app.use(express.json());
 
+app.get('/', (_req, res) => {
+  res.json({
+    name: 'Evotec API',
+    ok: true,
+    health: '/api/health',
+    docs: 'See README for auth and form endpoints',
+  });
+});
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, env: process.env.VERCEL ? 'vercel' : 'local' });
 });
