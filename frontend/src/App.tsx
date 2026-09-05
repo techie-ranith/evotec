@@ -1,13 +1,29 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Spin } from 'antd';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import HomePage from './pages/HomePage';
-import CustomerRegisterPage from './pages/CustomerRegisterPage';
-import CustomerLoginPage from './pages/CustomerLoginPage';
-import ApplicationPage from './pages/ApplicationPage';
-import AdminLoginPage from './pages/AdminLoginPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
+
+const HomePage = lazy(() => import('./pages/HomePage'));
+const CustomerRegisterPage = lazy(() => import('./pages/CustomerRegisterPage'));
+const CustomerLoginPage = lazy(() => import('./pages/CustomerLoginPage'));
+const ApplicationPage = lazy(() => import('./pages/ApplicationPage'));
+const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+
+function PageLoader() {
+  return (
+    <div
+      style={{
+        minHeight: '50vh',
+        display: 'grid',
+        placeItems: 'center',
+      }}
+    >
+      <Spin size="large" />
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -43,19 +59,21 @@ export default function App() {
     >
       <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/register" element={<CustomerRegisterPage />} />
-            <Route path="/login" element={<CustomerLoginPage />} />
-            <Route path="/admin/login" element={<AdminLoginPage />} />
-            <Route element={<ProtectedRoute role="CUSTOMER" />}>
-              <Route path="/application" element={<ApplicationPage />} />
-            </Route>
-            <Route element={<ProtectedRoute role="ADMIN" />}>
-              <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/register" element={<CustomerRegisterPage />} />
+              <Route path="/login" element={<CustomerLoginPage />} />
+              <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route element={<ProtectedRoute role="CUSTOMER" />}>
+                <Route path="/application" element={<ApplicationPage />} />
+              </Route>
+              <Route element={<ProtectedRoute role="ADMIN" />}>
+                <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+              </Route>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </ConfigProvider>

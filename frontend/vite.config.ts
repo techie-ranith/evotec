@@ -15,4 +15,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('antd') || id.includes('@ant-design')) {
+              return 'antd'
+            }
+            if (id.includes('react-dom') || id.includes('react-router') || id.includes('/react/')) {
+              return 'react-vendor'
+            }
+          }
+        },
+      },
+    },
+  },
 })
