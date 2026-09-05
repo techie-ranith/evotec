@@ -16,6 +16,9 @@
     "@types/node": "^22.13.10",
     "@vercel/node": "^5.3.24"
   },
+  "allowScripts": {
+    "esbuild": true
+  },
   "engines": {
     "node": ">=20"
   }
