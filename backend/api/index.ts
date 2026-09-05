@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import type { IncomingMessage, ServerResponse } from 'http';
-import app from '../backend/src/app';
-import { ensureReady } from '../backend/src/bootstrap';
+import app from '../src/app';
+import { ensureReady } from '../src/bootstrap';
 
 function applyCors(req: VercelRequest, res: VercelResponse) {
   const origin = req.headers.origin;
@@ -29,10 +29,6 @@ function applyCors(req: VercelRequest, res: VercelResponse) {
   }
 }
 
-/**
- * Vercel serverless entry — Express + Mongoose.
- * CORS is applied before DB init so OPTIONS preflight never fails without headers.
- */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   applyCors(req, res);
 
