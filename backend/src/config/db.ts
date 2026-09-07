@@ -5,6 +5,7 @@ type GlobalMongoose = typeof globalThis & {
 };
 
 const g = globalThis as GlobalMongoose;
+const { connected } = mongoose.ConnectionStates;
 
 export async function connectDB(): Promise<void> {
   const uri = process.env.MONGODB_URI;
@@ -12,8 +13,8 @@ export async function connectDB(): Promise<void> {
     throw new Error('MONGODB_URI is not set on the server');
   }
 
-  // 1 = connected only (do not treat "connecting" as ready)
-  if (mongoose.connection.readyState === 1) {
+  // Only treat fully connected as ready (not "connecting")
+  if (mongoose.connection.readyState === connected) {
     return;
   }
 
@@ -27,11 +28,6 @@ export async function connectDB(): Promise<void> {
 
   try {
     await g._mongooseConnect;
-    if (mongoose.connection.readyState !== 1) {
-      throw new Error(
-        `MongoDB not ready (readyState=${mongoose.connection.readyState})`
-      );
-    }
     console.log('MongoDB connected');
   } catch (error) {
     g._mongooseConnect = undefined;
