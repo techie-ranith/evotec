@@ -12,6 +12,7 @@ export default function HomePage() {
         <Button
           type="primary"
           size="large"
+          className="hero-cta"
           style={{ height: 48, paddingInline: 28, background: '#1a9b7a', borderColor: '#1a9b7a' }}
         >
           Open dashboard

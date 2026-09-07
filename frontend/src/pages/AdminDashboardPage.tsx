@@ -168,7 +168,7 @@ export default function AdminDashboardPage() {
         <Select
           allowClear
           placeholder="Gender"
-          style={{ width: 150 }}
+          className="toolbar-select"
           value={gender}
           onChange={(v) => setGender(v)}
           options={[
@@ -180,7 +180,7 @@ export default function AdminDashboardPage() {
         <Input.Search
           placeholder="Search name…"
           allowClear
-          style={{ width: 240, maxWidth: '100%' }}
+          className="toolbar-search"
           onSearch={(value) => setSearch(value)}
           onChange={(e) => {
             if (!e.target.value) setSearch('');
@@ -206,8 +206,13 @@ export default function AdminDashboardPage() {
           loading={loading}
           columns={columns}
           dataSource={submissions}
-          scroll={{ x: true }}
-          pagination={{ pageSize: 10, showSizeChanger: false }}
+          scroll={{ x: 720 }}
+          size="middle"
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: false,
+            showLessItems: true,
+          }}
         />
       </div>
 
@@ -218,6 +223,8 @@ export default function AdminDashboardPage() {
         onOk={() => void saveEdit()}
         okText="Save changes"
         destroyOnHidden
+        centered
+        width={520}
       >
         <Form layout="vertical" form={editForm} requiredMark={false}>
           <Form.Item
@@ -294,6 +301,8 @@ export default function AdminDashboardPage() {
         onOk={() => void createAdmin()}
         okText="Create"
         destroyOnHidden
+        centered
+        width={420}
       >
         <Form layout="vertical" form={adminForm} requiredMark={false}>
           <Form.Item

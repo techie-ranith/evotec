@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom';
-import { Button } from 'antd';
+import { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Button, Drawer } from 'antd';
+import { MenuOutlined, CloseOutlined } from '@ant-design/icons';
 import { useAuth } from '../context/AuthContext';
 
 export function AppLayout({
@@ -10,6 +12,59 @@ export function AppLayout({
   flush?: boolean;
 }) {
   const { user, logout, isAuthenticated } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
+
+  const closeMenu = () => setMenuOpen(false);
+
+  const navLinks = (
+    <>
+      {!isAuthenticated && (
+        <>
+          <Link to="/register" className="nav-link" onClick={closeMenu}>
+            Register
+          </Link>
+          <Link to="/login" className="nav-link" onClick={closeMenu}>
+            Customer login
+          </Link>
+          <Link to="/admin/login" className="nav-link nav-link--accent" onClick={closeMenu}>
+            Admin
+          </Link>
+        </>
+      )}
+      {user?.role === 'CUSTOMER' && (
+        <Link to="/application" className="nav-link nav-link--primary" onClick={closeMenu}>
+          Application
+        </Link>
+      )}
+      {user?.role === 'ADMIN' && (
+        <Link to="/admin/dashboard" className="nav-link nav-link--primary" onClick={closeMenu}>
+          Dashboard
+        </Link>
+      )}
+      {isAuthenticated && (
+        <>
+          <span className="app-nav-user" title={user?.email}>
+            {user?.email}
+          </span>
+          <Button
+            ghost
+            className="nav-logout"
+            onClick={() => {
+              closeMenu();
+              logout();
+            }}
+          >
+            Logout
+          </Button>
+        </>
+      )}
+    </>
+  );
 
   return (
     <div className="app-shell">
@@ -17,59 +72,33 @@ export function AppLayout({
         <Link to="/" className="app-brand">
           Evo<span>tec</span>
         </Link>
-        <nav className="app-nav-actions">
-          {!isAuthenticated && (
-            <>
-              <Link to="/register">
-                <Button ghost style={{ color: '#f4faf7', borderColor: 'rgba(244,250,247,0.35)' }}>
-                  Register
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button
-                  type="primary"
-                  style={{ background: '#1a9b7a', borderColor: '#1a9b7a' }}
-                >
-                  Customer login
-                </Button>
-              </Link>
-              <Link to="/admin/login">
-                <Button style={{ background: 'transparent', color: '#e8dcc8', borderColor: '#c4a574' }}>
-                  Admin
-                </Button>
-              </Link>
-            </>
-          )}
-          {user?.role === 'CUSTOMER' && (
-            <Link to="/application">
-              <Button type="primary" style={{ background: '#1a9b7a', borderColor: '#1a9b7a' }}>
-                Application
-              </Button>
-            </Link>
-          )}
-          {user?.role === 'ADMIN' && (
-            <Link to="/admin/dashboard">
-              <Button type="primary" style={{ background: '#1a9b7a', borderColor: '#1a9b7a' }}>
-                Dashboard
-              </Button>
-            </Link>
-          )}
-          {isAuthenticated && (
-            <>
-              <span className="app-nav-user" title={user?.email}>
-                {user?.email}
-              </span>
-              <Button
-                ghost
-                onClick={logout}
-                style={{ color: '#f4faf7', borderColor: 'rgba(244,250,247,0.35)' }}
-              >
-                Logout
-              </Button>
-            </>
-          )}
-        </nav>
+
+        <nav className="app-nav-actions app-nav-actions--desktop">{navLinks}</nav>
+
+        <Button
+          type="text"
+          className="nav-menu-btn"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          icon={menuOpen ? <CloseOutlined /> : <MenuOutlined />}
+          onClick={() => setMenuOpen((open) => !open)}
+        />
       </header>
+
+      <Drawer
+        placement="right"
+        open={menuOpen}
+        onClose={closeMenu}
+        size="default"
+        className="nav-drawer"
+        styles={{
+          body: { padding: 20, background: '#0c1f1a' },
+          header: { background: '#0c1f1a', borderBottom: '1px solid rgba(255,255,255,0.08)' },
+        }}
+        title={<span style={{ color: '#f4faf7', fontFamily: 'Syne, sans-serif' }}>Menu</span>}
+      >
+        <nav className="app-nav-actions app-nav-actions--drawer">{navLinks}</nav>
+      </Drawer>
+
       <main className={flush ? 'app-main app-main--flush' : 'app-main'}>{children}</main>
       {!flush && (
         <footer className="app-footer">Evotec — form management technical assignment</footer>
