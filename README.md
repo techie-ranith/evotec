@@ -14,14 +14,48 @@ Full-stack web application for the Evotec Software Developer technical assignmen
 
 ```
 evotec/
-  backend/       Express API (+ Vercel serverless in backend/api)
-  frontend/      Vite React app
+  backend/            Express API (+ Vercel serverless in backend/api)
+  frontend/           Vite React app
+  db/init/            PostgreSQL init SQL (Docker)
+  docker-compose.yml  Local PostgreSQL container
 ```
 
 ## Prerequisites
 
 - Node.js 20+
-- A MongoDB Atlas cluster
+- A MongoDB Atlas cluster (used by the running API today)
+- Docker Desktop (optional — for local PostgreSQL)
+
+## Local PostgreSQL with Docker
+
+The API currently uses **MongoDB Atlas**. This Compose setup provides a local **PostgreSQL 16** database (schema in `db/init/`) if you want Postgres for development or a future migration.
+
+```bash
+# start
+docker compose up -d
+
+# check health
+docker compose ps
+docker exec evotec-postgres pg_isready -U evotec -d evotec
+
+# stop (keep data)
+docker compose down
+
+# stop and wipe data
+docker compose down -v
+```
+
+Defaults (override via a root `.env` — see `.env.docker.example`):
+
+| Setting | Value |
+| ------- | ----- |
+| Host / port | `localhost:5432` |
+| User | `evotec` |
+| Password | `evotec_secret` |
+| Database | `evotec` |
+| URL | `postgresql://evotec:evotec_secret@localhost:5432/evotec` |
+
+Init scripts under `db/init/` create `users` and `form_submissions` tables on **first** container start only.
 
 ## Environment variables
 
